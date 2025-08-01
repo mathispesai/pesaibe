@@ -11,9 +11,4 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: "https://www.pesai.be/",
   integrations: [mdx(), sitemap(), react()],
-  adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
-  }),
 });
