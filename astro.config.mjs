@@ -10,6 +10,7 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.pesai.be/",
+  output: "static",
   integrations: [mdx(), sitemap(), react()],
   adapter: cloudflare(),
 });
