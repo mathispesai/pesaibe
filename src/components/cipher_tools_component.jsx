@@ -21,26 +21,46 @@ import { semaphoreflagsBase64 } from "../utils/pdfFonts/semaphoreflags.js";
 import { hieroglyphsBase64 } from "../utils/pdfFonts/hieroglyphs.js";
 
 const cipherOptions = [
+  // Eenvoudige tekstmanipulatie
   { label: "Woorden omkeren", value: "reverseWords" },
-  { label: "Caesarverschuiving", value: "caesarCipher" },
-  { label: "letters omzetten naar Cijfers (A=1, B=2)", value: "letterToNumber" },
+  { label: "Tekst ondersteboven", value: "upsideDown" },
+
+  // Letter ↔ Nummer
+  { label: "Letters omzetten naar Cijfers (A=1, B=2)", value: "letterToNumber" },
   { label: "Cijfers omzetten tot Letters", value: "numberToLetter" },
-  { label: "Morsecode (versleutel)", value: "morseEncode" },
-  { label: "Morsecode (ontsleutel)", value: "morseDecode" },
-  { label: "Lettersleutel (elke nth letter)", value: "letterskip" },
-  { label: "Jaartalmethode (versleutel)", value: "yearmethodEncode" },
-  { label: "Jaartalmethode (ontsleutel)", value: "yearmethodDecode" },
+  { label: "ASCII-code (versleutelen)", value: "asciiEncode" },
+  { label: "ASCII-code (ontsleutelen)", value: "asciiDecode" },
+  { label: "Hexadecimaal (versleutelen)", value: "hexEncode" },
+  { label: "Hexadecimaal (ontsleutelen)", value: "hexDecode" },
+
+  // Substitutietechnieken
+  { label: "Caesarverschuiving", value: "caesarCipher" },
   { label: "Vervangingscode (A↔Z)", value: "atbashCipher" },
-  { label: "Windroosmethode", value: "windrose" },
-  { label: "Codewoordsubstitutie (versleutelen/ontsleuteleen)", value: "codewordEncodeDecode" },
-  { label: "Windroosmethode (ontsleutelen)", value: "windroseDecode" },
+  { label: "Codewoordsubstitutie", value: "codewordEncodeDecode" },
+  { label: "Lettersleutel (elke nth letter)", value: "letterskip" },
   { label: "Lettersleutel (ontsleutelen)", value: "letterskipDecode" },
-  { label: "Vierkantcodering (versleutelen)", value: "squareEncode" },
-  { label: "Vierkantcodering (ontsleutelen)", value: "squareDecode" },
+  { label: "Windroosmethode", value: "windrose" },
+  { label: "Windroosmethode (ontsleutelen)", value: "windroseDecode" },
+  { label: "Kijk-Kleur methode (encode)", value: "kijkKleurEncode" },
+  { label: "Kijk-Kleur methode (decode)", value: "kijkKleurDecode" },
+
+  // Matrix/raster
   { label: "Matrixschrift (Polybius)", value: "polybiusEncode" },
   { label: "Matrixschrift (ontsleutelen)", value: "polybiusDecode" },
+  { label: "Vierkantcodering (versleutelen)", value: "squareEncode" },
+  { label: "Vierkantcodering (ontsleutelen)", value: "squareDecode" },
   { label: "Tralieschrift (versleutelen)", value: "tralieEncode" },
   { label: "Tralieschrift (ontsleutelen)", value: "tralieDecode" },
+
+  // Tijd-gebaseerd
+  { label: "Jaartalmethode (versleutelen)", value: "yearmethodEncode" },
+  { label: "Jaartalmethode (ontsleutelen)", value: "yearmethodDecode" },
+
+  // Morse
+  { label: "Morsecode (versleutelen)", value: "morseEncode" },
+  { label: "Morsecode (ontsleutelen)", value: "morseDecode" },
+
+  // Fonts en symbolen
   { label: "Braille (versleutelen)", value: "brailleFontEncode" },
   { label: "Braille (ontsleutelen)", value: "brailleFontDecode" },
   { label: "Raam (versleutelen)", value: "raamFontEncode" },
@@ -53,17 +73,11 @@ const cipherOptions = [
   { label: "Hieroglyphs (ontsleutelen)", value: "hieroglyphsFontDecode" },
   { label: "Semaphoreflags (versleutelen)", value: "semaphoreflagsFontEncode" },
   { label: "Semaphoreflags (ontsleutelen)", value: "semaphoreflagsFontDecode" },
-  { label: "ASCII-code (versleutelen)", value: "asciiEncode" },
-  { label: "ASCII-code (ontsleutelen)", value: "asciiDecode" },
-  { label: "Hexadecimaal (versleutelen)", value: "hexEncode" },
-  { label: "Hexadecimaal (ontsleutelen)", value: "hexDecode" },
-  { label: "Tekst ondersteboven", value: "upsideDown" },
+
+  // Modern / utility
   { label: "Tekst opdelen in blokken met QR", value: "splitChunks" },
-  { label: "Kijk-Kleur methode (encode)", value: "kijkKleurEncode" },
-  { label: "Kijk-Kleur methode (decode)", value: "kijkKleurDecode" },
-
-
 ];
+
 
 
 export default function CipherTools() {
