@@ -30,6 +30,35 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'BrailleFont';
+  src: url("/fonts/braille.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'RaamFont';
+  src: url("/fonts/raam.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'ChinoisFont';
+  src: url("/fonts/chinois.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'SemaphoreFlagsFont';
+  src: url("/fonts/semaphoreflags.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'HieroglyphsFont';
+  src: url("/fonts/hieroglyphs.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'DancingMenFont';
+  src: url("/fonts/dancingmen.ttf") format('truetype');
+}
+
 body {
   font-family: "Atkinson", sans-serif;
   margin: 0;
