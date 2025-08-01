@@ -13,7 +13,7 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), react()],
   adapter: cloudflare({
     platformProxy: {
-      enabled: true,
+      enabled: false,
     },
   }),
 });
