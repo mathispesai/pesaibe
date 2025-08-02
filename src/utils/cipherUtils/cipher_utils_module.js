@@ -154,7 +154,7 @@ export const yearMethodDecode = (cipher, year = "1979") => {
   return matrix.map((row, i) => row.slice(0, blockSizes[i]).join("")).join("");
 };
 
-const buildCodewordMatrix = (keyword) => {
+export const buildCodewordMatrix = (keyword) => {
   const cleanKeyword = [...new Set(keyword.toUpperCase().replace(/[^A-Z]/g, ""))];
   const fullAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const remainingLetters = fullAlphabet.filter(l => !cleanKeyword.includes(l));
@@ -432,7 +432,7 @@ export const hexDecode = (text) => {
   return text.split(/\s+/).map(h => String.fromCharCode(parseInt(h, 16))).join("");
 };
 
-const upsideDownMap = {
+export const upsideDownMap = {
   a: "ɐ", b: "q", c: "ɔ", d: "p", e: "ǝ", f: "ɟ", g: "ƃ",
   h: "ɥ", i: "ᴉ", j: "ɾ", k: "ʞ", l: "ʃ", m: "ɯ", n: "u",
   o: "o", p: "d", q: "b", r: "ɹ", s: "s", t: "ʇ", u: "n",

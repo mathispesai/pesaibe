@@ -2,8 +2,9 @@ import jsPDF from "jspdf";
 import { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import '../styles/global.css';
-import QRCodeS from "qrcode";
 import CipherExplanation from "./cipherExplanation.jsx";
+import QRCodeLib from "qrcode"; // ✅ gebruik de juiste import
+
 import {
   caesarCipher, codewordEncodeDecode, letterKeyDecode, letterKeyEncode, letterToNumber,
   morseDecode,
@@ -95,6 +96,7 @@ export default function CipherTools() {
   const [chunkParts, setChunkParts] = useState([]);
   const [kijkwoord, setKijkwoord] = useState("KIJK-");
   const [kleurwoord, setKleurwoord] = useState("KLEUR");
+  const [qrImages, setQrImages] = useState([]);
 
 
 
@@ -115,6 +117,20 @@ export default function CipherTools() {
 
     return () => clearTimeout(timeout); // voorkom te vroege uitvoer bij snelle wijzigingen
   }, [input, method, shift, year, codeword, skip, chunkCount, kijkwoord, kleurwoord, wordList]);
+  useEffect(() => {
+    const makeQRCodes = async () => {
+      const urls = await Promise.all(
+        chunkParts.map((part) => generateQRDataUrl(part, 128))
+      );
+      setQrImages(urls);
+    };
+    if (chunkParts.length > 0) {
+      makeQRCodes();
+    } else {
+      setQrImages([]);
+    }
+  }, [chunkParts]);
+
 
 
   const handleConvert = () => {
@@ -263,8 +279,14 @@ export default function CipherTools() {
     setOutput(result);
   };
 
+  // Centrale functie om QR als PNG-dataURL te maken
+  async function generateQRDataUrl(text, size = 128) {
+    const canvas = document.createElement("canvas");
+    await QRCodeLib.toCanvas(canvas, text, { width: size, margin: 1 });
+    return canvas.toDataURL("image/png");
+  }
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => { // ✅ async functie
     const pdf = new jsPDF();
 
     pdf.setFont("helvetica", "normal");
@@ -283,41 +305,26 @@ export default function CipherTools() {
       case "codewordEncodeDecode":
         methodeTekst += ` (Codewoord: ${codeword || "-"})`;
         break;
-
       case "caesarCipher":
         methodeTekst += ` (Shift: ${shift})`;
         break;
-
       case "letterskip":
-        methodeTekst += ` (Sleutelgetal: ${skip})`;
-        break;
       case "letterskipDecode":
         methodeTekst += ` (Sleutelgetal: ${skip})`;
         break;
-
       case "tralieEncode":
-        methodeTekst += ` (Aantal rijen: ${skip})`;
-        break;
       case "tralieDecode":
         methodeTekst += ` (Aantal rijen: ${skip})`;
         break;
-
       case "yearmethodEncode":
-        methodeTekst += ` (Jaartal: ${year || "-"})`;
-        break;
       case "yearmethodDecode":
         methodeTekst += ` (Jaartal: ${year || "-"})`;
         break;
-
-      case "KijkKleurEncode":
-        methodeTekst += ` (Kijkwoord, Kleurwoord: ${kijkwoord} , ${kleurwoord})`;
-        break;
+      case "kijkKleurEncode":
       case "kijkKleurDecode":
         methodeTekst += ` (Kijkwoord, Kleurwoord: ${kijkwoord} , ${kleurwoord})`;
         break;
-
       default:
-        // Geen extra info nodig
         break;
     }
 
@@ -367,32 +374,46 @@ export default function CipherTools() {
       pdf.text("Opgedeeld in blokken:", 10, y);
       y += 10;
 
-      chunkParts.forEach((part, index) => {
-        pdf.text(`Blok ${index + 1}:`, 10, y);
+      for (let i = 0; i < chunkParts.length; i++) {
+        const part = chunkParts[i];
+        pdf.text(`Blok ${i + 1}:`, 10, y);
         y += 6;
 
-        // QR-code genereren
-        const canvas = document.createElement("canvas");
-        const qr = new QRCodeS(canvas, {
-          text: part,
-          width: 100,
-          height: 100,
-        });
-        const imgData = canvas.toDataURL("image/png");
-
-        pdf.addImage(imgData, "PNG", 10, y, 40, 40); // QR op de linkerkant
+        const imgData = await generateQRDataUrl(part, 100);
+        pdf.addImage(imgData, "PNG", 10, y, 40, 40); // QR links
         pdf.setFontSize(10);
-        pdf.text(pdf.splitTextToSize(part, 140), 55, y + 5); // tekst rechts van QR
+        pdf.text(pdf.splitTextToSize(part, 140), 55, y + 5); // tekst rechts
         y += 45;
-      });
+      }
     } else {
-      // Standaard output
-      const splitOutput = pdf.splitTextToSize(output || "-", 180);
-      pdf.text(splitOutput, 10, y);
+  if (method.includes("raamFont")) {
+    const cellWidth = 12;   // afstand tussen symbolen
+    const cellHeight = 14;  // afstand tussen regels
+    const maxCols = 15;     // max aantal symbolen per regel (pas aan naar wens)
+
+    let col = 0;
+    let row = 0;
+
+    for (const char of (output || "-")) {
+      if (char === "\n") {
+        row++;
+        col = 0;
+        continue;
+      }
+      pdf.text(char, 10 + col * cellWidth, y + row * cellHeight);
+      col++;
+      if (col >= maxCols) { // nieuwe regel zodra maxCols bereikt is
+        col = 0;
+        row++;
+      }
     }
+  } else {
+    const splitOutput = pdf.splitTextToSize(output || "-", 180);
+    pdf.text(splitOutput, 10, y);
+  }
+}
 
-
-    // Font terugzetten als er speciaal font was
+    // Font terugzetten
     if (outputFontUsed) {
       pdf.setFont("helvetica", "normal");
     }
@@ -533,15 +554,38 @@ export default function CipherTools() {
           <div className="mt-4">
             <h2 className="text-lg font-semibold mb-2">QR-codes per blok:</h2>
             <div className="flex flex-wrap gap-6">
-              {chunkParts.map((part, idx) => (
-                <div
-                  key={idx}
-                  className="w-[140px] flex flex-col items-center border p-4 bg-white rounded shadow-sm"
-                >
-                  <QRCode value={part} size={128} />
-                  <p className="text-sm text-gray-600 mt-2">Blok {idx + 1}</p>
-                </div>
-              ))}
+              {chunkParts.map((part, idx) => {
+                const copyQR = async () => {
+                  try {
+                    const blob = await (await fetch(qrImages[idx])).blob();
+                    await navigator.clipboard.write([
+                      new ClipboardItem({ "image/png": blob })
+                    ]);
+                    alert(`QR-code van blok ${idx + 1} gekopieerd ✅`);
+                  } catch (err) {
+                    console.error("Kopiëren mislukt:", err);
+                    alert("Kon QR-code niet kopiëren");
+                  }
+                };
+
+                return (
+                  <div
+                    key={idx}
+                    className="w-[160px] flex flex-col items-center border p-4 bg-white rounded shadow-sm"
+                  >
+                    {qrImages[idx] && <img src={qrImages[idx]} alt={`QR Blok ${idx + 1}`} />}
+                    <p className="text-sm text-gray-600 mt-2">Blok {idx + 1}</p>
+                    <button
+                      onClick={copyQR}
+                      className="mt-2 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Kopieer QR
+                    </button>
+                  </div>
+                );
+              })}
+
+
             </div>
           </div>
 

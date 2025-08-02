@@ -1,7 +1,6 @@
 // components/CipherExplanation.jsx
 import React from "react";
-import { letterKeyEncode } from "../utils/cipherUtils/cipher_utils_module.js";
-
+import { letterKeyEncode, buildCodewordMatrix, upsideDownMap, splitChunks, } from "../utils/cipherUtils/cipher_utils_module.js";
 const fontMethods = [
     "brailleFontEncode", "brailleFontDecode",
     "raamFontEncode", "raamFontDecode",
@@ -11,7 +10,32 @@ const fontMethods = [
     "semaphoreflagsFontEncode", "semaphoreflagsFontDecode"
 ];
 
-export default function CipherExplanation({ method, input, year, skip, shift = skip, wordList = [] }) {
+const imageMap = {
+    raamFontEncode: "/images/raam-tabel.png",
+    raamFontDecode: "/images/raam-tabel.png",
+    dancingmenFontEncode: "/images/dancingmen.png",
+    dancingmenFontDecode: "/images/dancingmen.png",
+    semaphoreflagsFontEncode: "/images/semaphoreflags.png",
+    semaphoreflagsFontDecode: "/images/semaphoreflags.png",
+    hieroglyphsFontEncode: "/images/hieroglyphs.png",
+    hieroglyphsFontDecode: "/images/hieroglyphs.png",
+    brailleFontEncode: "/images/braille.png",
+    brailleFontDecode: "/images/braille.png",
+    chinoisFontEncode: "/images/chinois.png",
+    chinoisFontDecode: "/images/chinois.png",
+    windrose: "/images/windrose-tabel.png",
+    windroseDecode: "/images/windrose-tabel.png",
+    asciiDecode: "/images/ascii-hex.png",
+    asciiEncode: "/images/ascii-hex.png",
+    hexDecode: "/images/ascii-hex.png",
+    hexDecode: "/images/ascii-hex.png",
+    morseDecode: "/images/morse-tabel.png",
+    morseEncode: "/images/morse-tabel.png"
+};
+
+let content = null;
+
+export default function CipherExplanation({ method, input, year, skip, shift = skip, wordList = [], kijkwoord = "KIJK-", kleurwoord = "KLEUR" }) {
     if (!input || !method) return null;
 
     const cleanText = input.replace(/[^a-zA-Z]/g, "").toUpperCase();
@@ -34,7 +58,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
 
         const maxLen = Math.max(...blocks.map(b => b.length));
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Jaartalmethode</h2>
                 <p className="mb-2">
@@ -72,7 +96,10 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     // --- TRALIESCHRIFT ---
     if (method === "tralieEncode") {
         const rows = parseInt(skip || 2);
-        if (rows < 2) return <p>Minimaal 2 rijen nodig.</p>;
+        if (rows < 2) {
+            content = (<p>Minimaal 2 rijen nodig.</p>);
+            return;
+        }
 
         const matrix = Array.from({ length: rows }, () => Array(cleanText.length).fill(" "));
 
@@ -84,7 +111,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             if (row === rows - 1 || row === 0) direction *= -1;
         }
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Tralieschrift</h2>
                 <p className="mb-2">
@@ -135,7 +162,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             });
         });
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Polybius Matrix</h2>
                 <p className="mb-2">
@@ -181,22 +208,37 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     }
 
     if (method === "caesarCipher") {
-        const shift = skip % 26; // skip wordt al gebruikt voor tralie etc., hergebruiken als shift
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        const shifted = alphabet.map((_, i) => alphabet[(i + shift + 26) % 26]);
+        // Gebruik de shift-state direct, niet skip
+        const normalizedShift = shift % 26;
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        return (
+        // Verschoven alfabet genereren
+        const shifted = alphabet
+            .split("")
+            .map((_, i) => alphabet[(i + normalizedShift + 26) % 26]);
+
+        // Tekst versleutelen
+        const encrypted = cleanText.split("").map(c => {
+            const isLower = c === c.toLowerCase();
+            const idx = alphabet.indexOf(c.toUpperCase());
+            if (idx === -1) return c; // Geen letter → onveranderd
+            const newChar = shifted[idx];
+            return isLower ? newChar.toLowerCase() : newChar;
+        }).join("");
+
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Caesarverschuiving</h2>
                 <p className="mb-2">
-                    Elke letter wordt verschoven met <strong>{shift}</strong> plaatsen in het alfabet.
+                    Elke letter wordt verschoven met <strong>{normalizedShift}</strong> plaatsen in het alfabet.
                 </p>
 
+                {/* Tabel met originele en verschoven alfabet */}
                 <div className="overflow-auto mb-4">
                     <table className="table-fixed border-collapse text-center font-mono text-sm">
                         <thead>
                             <tr>
-                                {alphabet.map((char, idx) => (
+                                {alphabet.split("").map((char, idx) => (
                                     <th key={idx} className="border w-6 h-6 bg-gray-200">{char}</th>
                                 ))}
                             </tr>
@@ -211,13 +253,10 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                     </table>
                 </div>
 
+                {/* Originele en versleutelde tekst */}
                 <p className="font-mono text-sm mb-1">Tekst: {cleanText}</p>
                 <p className="font-mono text-sm">
-                    Versleuteld:{" "}
-                    {cleanText.split("").map(c => {
-                        const idx = alphabet.indexOf(c);
-                        return idx !== -1 ? shifted[idx] : c;
-                    }).join("")}
+                    Versleuteld: {encrypted}
                 </p>
 
                 <p className="mt-2 italic text-sm text-gray-700">
@@ -226,6 +265,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             </div>
         );
     }
+
 
     if (method === "squareEncode") {
         const clean = cleanText;
@@ -238,7 +278,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             grid.push(padded.slice(i * size, (i + 1) * size).split(""));
         }
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Vierkantscodering</h2>
                 <p className="mb-2">
@@ -276,7 +316,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             ? letterKeyEncode(clean, position, wordList).split(" ")
             : [];
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Lettersleutel</h2>
                 <p className="mb-4">
@@ -332,59 +372,21 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     }
 
     if (method === "morseEncode" || method === "morseDecode") {
-        const morseMap = {
-            A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".",
-            F: "..-.", G: "--.", H: "....", I: "..", J: ".---",
-            K: "-.-", L: ".-..", M: "--", N: "-.", O: "---",
-            P: ".--.", Q: "--.-", R: ".-.", S: "...", T: "-",
-            U: "..-", V: "...-", W: ".--", X: "-..-", Y: "-.--",
-            Z: "--..", 0: "-----", 1: ".----", 2: "..---",
-            3: "...--", 4: "....-", 5: ".....", 6: "-....",
-            7: "--...", 8: "---..", 9: "----."
-        };
 
-        const cleaned = cleanText.split(" ");
-        const morseWords = cleaned.map(word =>
-            word.split("").map(char => morseMap[char] || "?").join(" ")
-        );
-
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Morsecode</h2>
                 <p className="mb-2">
                     Elke letter wordt omgezet in streepjes en puntjes volgens de morsecode.
                     Woorden worden gescheiden met <code>/</code>, letters met een spatie.
                 </p>
-
-                <div className="mb-2 font-mono text-sm">
-                    {cleaned.map((word, idx) => (
-                        <div key={idx}>
-                            <strong>{word}</strong> → {morseWords[idx]}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="overflow-auto mt-2">
-                    <table className="table-fixed border-collapse text-sm font-mono">
-                        <thead>
-                            <tr>
-                                {Object.keys(morseMap).slice(0, 13).map(k => (
-                                    <th key={k} className="border px-1">{k}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                {Object.keys(morseMap).slice(0, 13).map(k => (
-                                    <td key={k} className="border px-1">{morseMap[k]}</td>
-                                ))}
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
                 <p className="mt-2 italic text-sm text-gray-700">
-                    → Decode werkt door signalen terug te vertalen naar letters op basis van de spaties en schuine strepen.
+                    Om te ontcijferen, gebruik je de morsemolen
+                    die hieronder staat. Naargelang het eerste
+                    teken begin je bovenaan rechts of links. Je
+                    daalt schuin rechts of links naar beneden
+                    naargelang het tweede teken (punt = links of
+                    gearceerd, streep = rechts) en zo verder.
                 </p>
             </div>
         );
@@ -395,7 +397,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
         const reversed = [...alphabet].reverse();
         const mapped = Object.fromEntries(alphabet.map((a, i) => [a, reversed[i]]));
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Atbash-codering</h2>
                 <p className="mb-2">
@@ -437,7 +439,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     if (method === "letterToNumber" || method === "numberToLetter") {
         const words = input.trim().split(" / ").map(w => w.trim());
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Letter ↔ Nummer</h2>
                 <p className="mb-2">
@@ -488,7 +490,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
         const words = input.split(" ").map(w => w.trim()).filter(Boolean);
         const reversedWords = words.map(w => w.split("").reverse().join(""));
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Woorden omkeren</h2>
                 <p className="mb-4">
@@ -532,43 +534,32 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
 
         const explanation = method === "windrose" ? (
             <p className="mb-2">
-                Elke letter wordt vertaald naar een reeks windrichtingen (N, O, Z, W).
+                Een letter geef je weer door de twee
+                windrichtingen waartussen hij ligt. Je plaatst
+                een sterretje wanneer je de binnenste letter (q,r,s...)
+                bedoelt.
+
+                Je noteert eerst de hoofdwindrichting (N,O,Z of W) of de tussenwindrichting (NO,ZO,ZW,NW) en dan pas de (kleine) windrichting.
             </p>
+
         ) : (
             <p className="mb-2">
-                Reeksen met windrichtingen worden vertaald terug naar letters.
+                Een letter geef je weer door de twee
+                windrichtingen waartussen hij ligt. Je plaatst
+                een sterretje wanneer je de binnenste letter (q,r,s...)
+                bedoelt.
+
+                Je noteert eerst de hoofdwindrichting (N,O,Z of W) of de tussenwindrichting (NO,ZO,ZW,NW) en dan pas de (kleine) windrichting.
             </p>
         );
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧭 Uitleg: Windroosmethode</h2>
                 {explanation}
                 <div className="overflow-auto mt-2">
-                    <table className="table-fixed border-collapse text-sm font-mono">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="border px-2 py-1">Letter</th>
-                                <th className="border px-2 py-1">Windrichtingen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {mapEntries.map(([char, code]) => (
-                                <tr key={char}>
-                                    <td className="border px-2 py-1">{char}</td>
-                                    <td className="border px-2 py-1">{code}</td>
-                                </tr>
-                            ))}
-                            <tr className="text-gray-500 italic">
-                                <td className="border px-2 py-1">...</td>
-                                <td className="border px-2 py-1">meer mappings in volledige tabel</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
                 </div>
-                <p className="italic text-sm text-gray-700 mt-2">
-                    → Windrichtingen staan voor: N = Noord, O = Oost, Z = Zuid, W = West.
-                </p>
             </div>
         );
     }
@@ -577,7 +568,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     if (method === "codewordEncodeDecode") {
         const { topRow, bottomRow } = buildCodewordMatrix(input || "CODEWOORD");
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Codewoordsubstitutie</h2>
                 <p className="mb-2">
@@ -612,7 +603,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
 
 
     if (method === "letterskipDecode") {
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Lettersleutel (ontsleutelen)</h2>
                 <p className="mb-2">
@@ -625,29 +616,28 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     if (method === "squareDecode") {
         const clean = input.replace(/[^A-Z]/gi, "").toUpperCase();
         const len = clean.length;
-        const size = Math.sqrt(len);
-        if (!Number.isInteger(size)) {
-            return <div className="text-red-500">⚠️ De tekstlengte is geen perfect kwadraat ({len} → √{size.toFixed(2)}).</div>;
-        }
+        const size = Math.ceil(Math.sqrt(len));
+        const padded = clean.padEnd(size * size, "X");
 
+        // Bouw matrix door kolommen te vullen (reverse van encode)
         const matrix = Array.from({ length: size }, () => Array(size).fill(""));
         let idx = 0;
-
         for (let col = 0; col < size; col++) {
             for (let row = 0; row < size; row++) {
-                matrix[row][col] = clean[idx++];
+                matrix[row][col] = padded[idx++];
             }
         }
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Vierkantscodering (ontsleutelen)</h2>
                 <p className="mb-2">
-                    De tekst werd kolom-voor-kolom gevuld. Hier wordt het vierkant hersteld zodat je rij-voor-rij het origineel terugkrijgt.
+                    De gecodeerde tekst wordt kolom-voor-kolom in een vierkant van <strong>{size}×{size}</strong> geplaatst (aantal letters: {len}).
+                    Vervolgens lees je rij-voor-rij om de oorspronkelijke tekst terug te krijgen.
                 </p>
 
                 <div className="overflow-auto mb-2">
-                    <table className="table-fixed border-collapse font-mono text-center text-sm">
+                    <table className="table-fixed border-collapse font-mono text-center">
                         <tbody>
                             {matrix.map((row, rIdx) => (
                                 <tr key={rIdx}>
@@ -661,11 +651,12 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                 </div>
 
                 <p className="italic text-sm text-gray-700">
-                    → Originele tekst wordt hersteld door rij per rij te lezen.
+                    → Originele tekst: lees de rijen van links naar rechts.
                 </p>
             </div>
         );
     }
+
 
 
     if (method === "polybiusDecode") {
@@ -678,12 +669,12 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
         ];
 
         const codes = input.match(/\d{2}/g) || [];
-        const decoded = codes.map(pair => {
+        const decodedText = codes.map(pair => {
             const [r, c] = [parseInt(pair[0], 10) - 1, parseInt(pair[1], 10) - 1];
             return (polybiusMatrix[r] && polybiusMatrix[r][c]) || "?";
-        });
+        }).join("");
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Polybius Matrix (ontsleutelen)</h2>
                 <p className="mb-2">
@@ -691,21 +682,23 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                 </p>
 
                 <div className="overflow-auto mb-4">
-                    <table className="table-fixed border-collapse font-mono text-center text-sm">
+                    <table className="table-fixed border-collapse">
                         <thead>
                             <tr>
                                 <th></th>
                                 {[1, 2, 3, 4, 5].map(col => (
-                                    <th key={col} className="w-8 bg-gray-200">{col}</th>
+                                    <th key={col} className="w-8 text-center text-xs">{col}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {polybiusMatrix.map((row, rIdx) => (
-                                <tr key={rIdx}>
-                                    <td className="bg-gray-200">{rIdx + 1}</td>
-                                    {row.map((char, cIdx) => (
-                                        <td key={cIdx} className="border bg-white">{char}</td>
+                            {polybiusMatrix.map((row, rowIdx) => (
+                                <tr key={rowIdx}>
+                                    <td className="text-xs text-right pr-2">{rowIdx + 1}</td>
+                                    {row.map((char, colIdx) => (
+                                        <td key={colIdx} className="border w-8 h-8 text-center font-mono bg-white">
+                                            {char}
+                                        </td>
                                     ))}
                                 </tr>
                             ))}
@@ -713,39 +706,55 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                     </table>
                 </div>
 
-                <div className="font-mono text-sm bg-white p-2 rounded border">
-                    {codes.map((c, i) => (
-                        <span key={i}>{c} → {decoded[i]} | </span>
-                    ))}
-                </div>
+                <p className="font-mono text-sm mb-1">
+                    Codes: {codes.join(" ")}
+                </p>
+                <p className="font-mono text-sm">
+                    Tekst: {decodedText}
+                </p>
 
-                <p className="italic text-sm text-gray-700 mt-2">
+                <p className="mt-2 italic text-sm text-gray-700">
                     → Q ontbreekt in deze codering (vervangen of weggelaten).
                 </p>
             </div>
         );
     }
 
-
     if (method === "tralieDecode") {
-        const rows = parseInt(skip || 2);
-        if (rows < 2) return <p>Minimaal 2 rijen nodig.</p>;
+        const rows = parseInt(skip || 2, 10);
+        const cleaned = input.replace(/[^a-zA-Z]/g, "");
+        const len = cleaned.length;
 
-        const len = input.replace(/[^a-zA-Z]/g, "").length;
-        const matrix = Array.from({ length: rows }, () => Array(len).fill(null));
-
-        let row = 0, direction = 1;
-        for (let col = 0; col < len; col++) {
-            matrix[row][col] = "*";
-            row += direction;
-            if (row === rows - 1 || row === 0) direction *= -1;
+        if (len === 0) {
+            content = (<p>Geen geldige letters om te decoderen.</p>);
+            return;
         }
 
-        return (
+        let matrix;
+
+        if (rows <= 1) {
+            // Speciale case: alles op 1 regel
+            matrix = [Array.from(cleaned)];
+        } else {
+            // Normale tralie-decode op meerdere rijen
+            matrix = Array.from({ length: rows }, () => Array(len).fill(null));
+
+            let row = 0, direction = 1;
+            for (let col = 0; col < len; col++) {
+                matrix[row][col] = "*";
+                row += direction;
+                if (row === rows - 1 || row === 0) direction *= -1;
+            }
+        }
+
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Tralieschrift (ontsleutelen)</h2>
                 <p className="mb-2">
-                    De zigzagstructuur wordt hersteld en gevuld met tekst, waarna de originele volgorde wordt gereconstrueerd.
+                    {rows <= 1
+                        ? "Bij één rij staan alle letters naast elkaar."
+                        : "De zigzagstructuur wordt hersteld en gevuld met tekst, waarna de originele volgorde wordt gereconstrueerd."
+                    }
                 </p>
                 <div className="overflow-auto">
                     <table className="table-fixed border-collapse text-sm font-mono">
@@ -755,7 +764,8 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                                     {rowArr.map((char, colIdx) => (
                                         <td
                                             key={colIdx}
-                                            className={`border w-8 h-8 text-center ${char === "*" ? "bg-yellow-100" : "bg-gray-200"}`}
+                                            className={`border w-8 h-8 text-center ${char === "*" ? "bg-yellow-100" : "bg-gray-200"
+                                                }`}
                                         >
                                             {char || ""}
                                         </td>
@@ -765,12 +775,15 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
                         </tbody>
                     </table>
                 </div>
-                <p className="italic text-sm text-gray-700 mt-2">
-                    → Posities met <code>*</code> worden gevuld met letters en dan zigzaggend uitgelezen.
-                </p>
+                {rows > 1 && (
+                    <p className="italic text-sm text-gray-700 mt-2">
+                        → Posities met <code>*</code> worden gevuld met letters en dan zigzaggend uitgelezen.
+                    </p>
+                )}
             </div>
         );
     }
+
 
     // === FONT-BASED CIPHERS ===
     const fontDescriptions = {
@@ -784,16 +797,13 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
 
     if (fontMethods.includes(method)) {
         const displayName = fontDescriptions[method] || "Symbolenschrift";
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: {displayName}</h2>
                 <p className="mb-2">
                     Deze codering gebruikt een speciaal lettertype waarbij elke letter een uniek symbool voorstelt.
                     De betekenis zit in het uiterlijk van de tekens.
                 </p>
-                <div className={`font-mono text-lg bg-white border p-3 rounded ${method.replace("Encode", "")}`}>
-                    {input}
-                </div>
                 <p className="italic text-sm text-gray-700 mt-2">
                     → Om te ontcijferen moet je het symbool opzoeken in een sleutel of lettertabel.
                 </p>
@@ -807,7 +817,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             ? clean.split("").map(c => [c, c.charCodeAt(0)])
             : clean.split(/\s+/).map(code => [code, String.fromCharCode(parseInt(code))]);
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: ASCII-code</h2>
                 <p className="mb-2">
@@ -845,7 +855,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             ? input.split("").map(c => [c, c.charCodeAt(0).toString(16)])
             : input.split(/\s+/).map(hex => [hex, String.fromCharCode(parseInt(hex, 16))]);
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Hexadecimale code</h2>
                 <p className="mb-2">
@@ -869,12 +879,9 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
 
     if (method === "upsideDown") {
         const reversed = input.split("").reverse();
-        const transformed = reversed.map(c => {
-            const flipped = upsideDownMap[c] || upsideDownMap[c.toLowerCase()];
-            return flipped || c;
-        });
+        const transformed = reversed.map(c => upsideDownMap[c] || upsideDownMap[c.toLowerCase()] || c);
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🙃 Uitleg: Tekst ondersteboven</h2>
                 <p className="mb-2">
@@ -897,7 +904,7 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     if (method === "splitChunks") {
         const chunks = input?.trim() ? splitChunks(input, skip || 3) : [];
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Tekst opdelen in blokken</h2>
                 <p className="mb-2">
@@ -918,8 +925,10 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     if (method === "kijkKleurEncode" || method === "kijkKleurDecode") {
         const kijkLabels = (kijkwoord || "KIJK-").toUpperCase().split("");
         const kleurLabels = (kleurwoord || "KLEUR").toUpperCase().split("");
+
+        // Zelfde matrixopbouw als in encode/decode
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".replace("Y", "");
         const matrix = [];
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXZ"; // zonder Y
         let index = 0;
         for (let r = 0; r < 5; r++) {
             const row = [];
@@ -929,12 +938,12 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
             matrix.push(row);
         }
 
-        return (
+        content = (
             <div className="border p-4 bg-blue-50 rounded mt-4">
                 <h2 className="font-bold text-lg mb-2">🧠 Uitleg: Kijk-Kleur methode</h2>
                 <p className="mb-2">
-                    De tekst wordt gecodeerd als coördinaten: kolomletter (kijk) + rijletter (kleur), m.b.v. een <strong>5×5-matrix</strong>.
-                    De letter <code>Y</code> wordt vervangen door <code>IJ</code>.
+                    De tekst wordt gecodeerd als coördinaten: kolomletter (kijk) + rijletter (kleur),
+                    m.b.v. een <strong>5×5-matrix</strong>. De letter <code>Y</code> wordt vervangen door <code>IJ</code>.
                 </p>
 
                 <div className="overflow-auto mb-3">
@@ -968,6 +977,25 @@ export default function CipherExplanation({ method, input, year, skip, shift = s
     }
 
 
-    return null;
-}
+    // Als geen content is gevonden, stop
+    if (!content) return null;
 
+    // Eén gezamenlijke return met optionele afbeelding
+    return (
+        <>
+            {content}
+            {imageMap[method] && (
+                <div className="mt-4">
+                    <img
+                        src={imageMap[method]}
+                        alt={`${method} sleutelafbeelding`}
+                        className="rounded border shadow max-w-full mx-auto"
+                    />
+                    <p className="italic text-sm text-gray-700 text-center mt-2">
+                        ↳ Sleuteltabel voor deze methode
+                    </p>
+                </div>
+            )}
+        </>
+    );
+}
