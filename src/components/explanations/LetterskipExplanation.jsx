@@ -1,7 +1,7 @@
 // components/explanations/LetterskipExplanation.jsx
 import React from "react";
 import { BaseExplanation } from "./BaseExplanation.jsx";
-import { letterKeyEncode } from "../../utils/cipherUtils/cipher_utils_module.js";
+import { letterKeyEncode } from "../../utils/cipherUtils/letter_key.js";
 
 export function LetterskipExplanation({ input, method, skip, wordList, imageSrc, imageAlt }) {
     if (method === "letterskipDecode") {

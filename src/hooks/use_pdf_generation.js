@@ -1,8 +1,8 @@
-// hooks/usePDFGeneration.js
+// hooks/use_pdf_generation.js
 import { useCallback } from 'react';
 import jsPDF from "jspdf";
 import QRCodeLib from 'qrcode';
-import { cipherOptions } from '../config/cipher_Options.js';
+import { cipherOptions } from '../config/cipher_options.js';
 import { brailleBase64 } from "../utils/pdfFonts/braille.js";
 import { chinoisBase64 } from "../utils/pdfFonts/chinois.js";
 import { raamBase64 } from "../utils/pdfFonts/raam.js";

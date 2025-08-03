@@ -1,4 +1,4 @@
-// utils/cipherUtils/textManipulation.js
+// utils/cipherUtils/text_manipulation.js
 
 export const reverseWords = (text) => {
   return text.split(" ").map(word => word.split("").reverse().join(""))

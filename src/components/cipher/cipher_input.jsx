@@ -1,4 +1,4 @@
-// components/cipher/CipherInput.jsx
+// components/cipher/cipher_input.jsx
 import React from 'react';
 import { decodeFontMap } from '../../config/font_methods.js';
 

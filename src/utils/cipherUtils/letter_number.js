@@ -1,4 +1,4 @@
-// utils/cipherUtils/letterNumber.js
+// utils/cipherUtils/letter_number.js
 
 export const letterToNumber = (text) => {
   return text

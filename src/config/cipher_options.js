@@ -1,4 +1,4 @@
-// config/cipherOptions.js
+// config/cipher_options.js
 
 export const cipherOptions = [
   // Eenvoudige tekstmanipulatie

@@ -1,4 +1,4 @@
-// utils/cipherUtils/timeBasedCiphers.js
+// utils/cipherUtils/time_based.js
 
 export const yearMethodEncode = (text, year = "1979") => {
   const clean = text.replace(/[^a-zA-Z]/g, "").toUpperCase();

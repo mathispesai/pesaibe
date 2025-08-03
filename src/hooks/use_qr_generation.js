@@ -1,4 +1,4 @@
-// hooks/useQRGeneration.js
+// hooks/use_qr_generation.js
 import { useState, useEffect } from 'react';
 import QRCodeLib from 'qrcode';
 

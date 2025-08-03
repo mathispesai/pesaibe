@@ -1,4 +1,4 @@
-// components/cipher/CipherOutput.jsx
+// components/cipher/cipher_output.jsx
 import React from 'react';
 import QRCode from "react-qr-code";
 

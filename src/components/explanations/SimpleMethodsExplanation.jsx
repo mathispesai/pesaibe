@@ -1,7 +1,8 @@
 // components/explanations/SimpleMethodsExplanation.jsx
 import React from "react";
 import { BaseExplanation } from "./BaseExplanation.jsx";
-import { upsideDownMap, splitChunks } from "../../utils/cipherUtils/cipher_utils_module.js";
+import { splitChunks } from "../../utils/cipherUtils/utility.js";
+import { upsideDownMap } from "../../utils/cipherUtils/text_manipulation.js";
 
 export function SimpleMethodsExplanation({ input, method, skip, imageSrc, imageAlt }) {
     if (method === "reverseWords") {

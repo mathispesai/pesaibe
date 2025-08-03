@@ -1,7 +1,7 @@
 // components/explanations/CodewordExplanation.jsx
 import React from "react";
 import { BaseExplanation } from "./BaseExplanation.jsx";
-import { buildCodewordMatrix } from "../../utils/cipherUtils/cipher_utils_module.js";
+import {buildCodewordMatrix } from "../../utils/cipherUtils/substitution.js";
 
 export function CodewordExplanation({ input, imageSrc, imageAlt }) {
     const { topRow, bottomRow } = buildCodewordMatrix(input || "CODEWOORD");

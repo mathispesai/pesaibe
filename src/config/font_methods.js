@@ -1,4 +1,4 @@
-// config/fontMethods.js
+// config/font_methods.js
 
 export const fontMethods = [
   "brailleFontEncode", "brailleFontDecode",

@@ -1,4 +1,4 @@
-// config/imageMap.js
+// config/image_map.js
 
 // config/imageMap.js
 export const imageMap = {

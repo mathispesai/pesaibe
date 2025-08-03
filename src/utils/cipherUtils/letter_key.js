@@ -1,4 +1,4 @@
-// utils/cipherUtils/letterKey.js
+// utils/cipherUtils/letter_key.js
 
 export const letterKeyEncode = (text, position = 3, wordList = []) => {
   const clean = text.toUpperCase().replace(/[^A-Z]/g, "");

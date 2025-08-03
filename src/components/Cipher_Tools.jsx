@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import '../styles/global.css';
 
 // Components
-import CipherInput from "./cipher/Cipher_Input.jsx";
-import CipherSelector from "./cipher/Cipher_Selector.jsx";
-import CipherOutput from "./cipher/Cipher_Output.jsx";
+import CipherInput from "./cipher/cipher_input.jsx";
+import CipherSelector from "./cipher/cipher_selector.jsx";
+import CipherOutput from "./cipher/cipher_output.jsx";
 import CipherExplanation from "./cipherExplanation.jsx";
 
 // Hooks

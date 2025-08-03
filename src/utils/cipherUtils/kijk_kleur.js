@@ -1,4 +1,4 @@
-// utils/cipherUtils/kijkKleur.js
+// utils/cipherUtils/kijk_kleur.js
 
 export const kijkKleurEncode = (text, kijk = "KIJK-", kleur = "KLEUR") => {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".replace("Y", "");

@@ -1,6 +1,6 @@
-// components/cipher/CipherSelector.jsx
+// components/cipher/cipher_selector.jsx
 import React from 'react';
-import { cipherOptions } from '../../config/cipher_Options.js';
+import { cipherOptions } from '../../config/cipher_options.js';
 
 export default function CipherSelector({ 
   method, 
