@@ -84,6 +84,20 @@ export default function CipherTools() {
             searchTerm={searchState.searchTerm}
             showFavoritesOnly={searchState.showFavoritesOnly}
           />
+          {cipherState.hasContent && (
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <CipherExplanation
+                method={cipherState.selectedMethod}
+                input={cipherState.input}
+                year={cipherState.parameters.year}
+                skip={cipherState.parameters.skip}
+                shift={cipherState.parameters.shift}
+                wordList={cipherState.wordList}
+                kijkwoord={cipherState.parameters.kijkwoord}
+                kleurwoord={cipherState.parameters.kleurwoord}
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -110,21 +124,6 @@ export default function CipherTools() {
           />
         </div>
       </div>
-
-      {cipherState.hasContent && (
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <CipherExplanation
-            method={cipherState.selectedMethod}
-            input={cipherState.input}
-            year={cipherState.parameters.year}
-            skip={cipherState.parameters.skip}
-            shift={cipherState.parameters.shift}
-            wordList={cipherState.wordList}
-            kijkwoord={cipherState.parameters.kijkwoord}
-            kleurwoord={cipherState.parameters.kleurwoord}
-          />
-        </div>
-      )}
     </div>
   );
 }
