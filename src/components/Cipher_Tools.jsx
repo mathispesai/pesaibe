@@ -1,142 +1,130 @@
-// components/CipherTools.jsx (Refactored)
-import { useEffect, useState } from "react";
-import '../styles/global.css';
+import { useCallback } from 'react';
+import { CipherMethodSelector } from './cipher/cipher_method_selector.jsx';
+import { CipherParameterPanel } from './cipher/cipher_parameter_panel.jsx';
+import { CipherInputOutput } from './cipher/cipher_input_output.jsx';
+import { CipherResults } from './cipher/cipher_results.jsx';
+import { CipherSearchBar } from './cipher/cipher_search_bar.jsx';
+import CipherExplanation from './cipher_explanation.jsx';
 
-// Components
-import CipherInput from "./cipher/cipher_input.jsx";
-import CipherSelector from "./cipher/cipher_selector.jsx";
-import CipherOutput from "./cipher/cipher_output.jsx";
-import CipherExplanation from "./cipherExplanation.jsx";
-
-// Hooks
-import { useCipherConversion } from "../hooks/use_cipher_conversion.js";
-import { useQRGeneration } from "../hooks/use_qr_generation.js";
-import { usePDFGeneration } from "../hooks/use_pdf_generation.js";
+import { useCipherState } from '../hooks/use_cipher_state.js';
+import { useCipherHistory } from '../hooks/use_cipher_history.js';
+import { useSearchState } from '../hooks/use_search_state.js';
+import { useQRGeneration } from '../hooks/use_qr_generation.js';
+import { usePDFGeneration } from '../hooks/use_pdf_generation.js';
+import { useFavorites } from '../hooks/use_favorites.js';
+import { useKeyboardShortcuts } from '../utils/keyboard-shortcuts.js';
+import { createPDFDownloadHandler } from '../utils/pdf-utils.js';
 
 export default function CipherTools() {
-  // State
-  const [input, setInput] = useState("");
-  const [method, setMethod] = useState("reverseWords");
-  const [output, setOutput] = useState("");
-  const [outputFont, setOutputFont] = useState("");
-  const [chunkParts, setChunkParts] = useState([]);
-  const [wordList, setWordList] = useState([]);
+  // State management
+  const cipherState = useCipherState();
+  const searchState = useSearchState();
+  const { favorites, toggleFavorite } = useFavorites([]);
 
-  // Parameters for different cipher methods
-  const [shift, setShift] = useState(3);
-  const [year, setYear] = useState("1979");
-  const [codeword, setCodeword] = useState("");
-  const [skip, setSkip] = useState(1);
-  const [chunkCount, setChunkCount] = useState(3);
-  const [kijkwoord, setKijkwoord] = useState("KIJK-");
-  const [kleurwoord, setKleurwoord] = useState("KLEUR");
+  // History management
+  const { handleUndo, handleRedo, canUndo, canRedo } = useCipherHistory(
+    cipherState.input, cipherState.selectedMethod
+  );
 
-  // Custom hooks
-  const { convertText } = useCipherConversion();
-  const { qrImages } = useQRGeneration(chunkParts);
+  // QR and PDF generation
+  const { qrImages } = useQRGeneration(cipherState.chunkParts);
   const { downloadPDF } = usePDFGeneration();
 
-  // Load word list
-  useEffect(() => {
-    fetch("/wordlist.txt")
-      .then(res => res.text())
-      .then(text => {
-        const words = text.split("\n").map(w => w.trim()).filter(Boolean);
-        console.log("Eerste woorden uit lijst:", words.slice(0, 5));
-        setWordList(words);
-      });
-  }, []);
-
-  // Auto-convert when parameters change
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      handleConvert();
-    }, 300); // wacht 300ms na laatste wijziging
-
-    return () => clearTimeout(timeout);
-  }, [input, method, shift, year, codeword, skip, chunkCount, kijkwoord, kleurwoord, wordList]);
-
-  const handleConvert = () => {
-    const conversionParams = {
-      shift, year, codeword, skip, chunkCount, kijkwoord, kleurwoord, wordList
-    };
-
-    const { result, font, chunkParts: newChunkParts } = convertText(
-      input, 
-      method, 
-      conversionParams
-    );
-
-    setOutput(result);
-    setOutputFont(font || "");
-    
-    if (newChunkParts) {
-      setChunkParts(newChunkParts);
-    } else {
-      setChunkParts([]);
+  // Event handlers
+  const restoreFromHistory = useCallback((entry) => {
+    if (entry) {
+      cipherState.setInput(entry.input);
+      cipherState.setSelectedMethod(entry.method);
+      // Don't restore parameters - let user keep their current parameter settings
     }
-  };
+  }, [cipherState]);
 
-  const handleDownloadPDF = () => {
-    downloadPDF({
-      input,
-      output,
-      method,
-      shift,
-      year,
-      codeword,
-      skip,
-      kijkwoord,
-      kleurwoord,
-      chunkParts,
-      qrImages
-    });
-  };
+  const handleUndoWithRestore = useCallback(() => {
+    const entry = handleUndo();
+    restoreFromHistory(entry);
+  }, [handleUndo, restoreFromHistory]);
+
+  const handleRedoWithRestore = useCallback(() => {
+    const entry = handleRedo();
+    restoreFromHistory(entry);
+  }, [handleRedo, restoreFromHistory]);
+
+  const handleDownloadPDF = useCallback(() => {
+    const pdfHandler = createPDFDownloadHandler(downloadPDF);
+    const handler = pdfHandler(cipherState, cipherState.chunkParts, qrImages);
+    handler();
+  }, [downloadPDF, cipherState, qrImages]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+z': handleUndoWithRestore,
+    'ctrl+y': handleRedoWithRestore
+  });
 
   return (
-    <div className="space-y-4">
-      <CipherInput 
-        input={input} 
-        setInput={setInput} 
-        method={method} 
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <CipherSearchBar
+        searchTerm={searchState.searchTerm}
+        onSearchChange={searchState.setSearchTerm}
+        showFavoritesOnly={searchState.showFavoritesOnly}
+        onToggleFavorites={searchState.setShowFavoritesOnly}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={handleUndoWithRestore}
+        onRedo={handleRedoWithRestore}
       />
 
-      <CipherSelector
-        method={method}
-        setMethod={setMethod}
-        shift={shift}
-        setShift={setShift}
-        year={year}
-        setYear={setYear}
-        codeword={codeword}
-        setCodeword={setCodeword}
-        skip={skip}
-        setSkip={setSkip}
-        chunkCount={chunkCount}
-        setChunkCount={setChunkCount}
-        kijkwoord={kijkwoord}
-        setKijkwoord={setKijkwoord}
-        kleurwoord={kleurwoord}
-        setKleurwoord={setKleurwoord}
-      />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <CipherMethodSelector
+            selectedMethod={cipherState.selectedMethod}
+            onMethodSelect={cipherState.setSelectedMethod}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            searchTerm={searchState.searchTerm}
+            showFavoritesOnly={searchState.showFavoritesOnly}
+          />
+        </div>
 
-      <CipherOutput 
-        output={output}
-        outputFont={outputFont}
-        method={method}
-        chunkParts={chunkParts}
-        qrImages={qrImages}
-        onDownloadPDF={handleDownloadPDF}
-      />
+        <div className="space-y-6">
+          <CipherParameterPanel
+            method={cipherState.selectedMethod}
+            parameters={cipherState.parameters}
+            onParameterChange={cipherState.updateParameter}
+          />
 
-      <CipherExplanation
-        method={method}
-        input={input}
-        year={year}
-        skip={skip}
-        shift={shift}
-        wordList={wordList}
-      />
+          <CipherInputOutput
+            input={cipherState.input}
+            onInputChange={cipherState.setInput}
+            output={cipherState.output}
+            outputFont={cipherState.outputFont}
+            method={cipherState.selectedMethod}
+          />
+
+          <CipherResults
+            output={cipherState.output}
+            method={cipherState.selectedMethod}
+            chunkParts={cipherState.chunkParts}
+            qrImages={qrImages}
+            onDownloadPDF={handleDownloadPDF}
+          />
+        </div>
+      </div>
+
+      {cipherState.hasContent && (
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <CipherExplanation
+            method={cipherState.selectedMethod}
+            input={cipherState.input}
+            year={cipherState.parameters.year}
+            skip={cipherState.parameters.skip}
+            shift={cipherState.parameters.shift}
+            wordList={cipherState.wordList}
+            kijkwoord={cipherState.parameters.kijkwoord}
+            kleurwoord={cipherState.parameters.kleurwoord}
+          />
+        </div>
+      )}
     </div>
   );
 }

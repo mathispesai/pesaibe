@@ -3,7 +3,11 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* CSS Custom Properties - Global */
 :root {
   --accent: #2337ff;
   --accent-dark: #000d8a;
@@ -16,6 +20,8 @@
     0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
     0 16px 32px rgba(var(--gray), 33%);
 }
+
+/* Font Faces - Global */
 @font-face {
   font-family: "Atkinson";
   src: url("/fonts/atkinson-regular.woff") format("woff");
@@ -23,6 +29,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Atkinson";
   src: url("/fonts/atkinson-bold.woff") format("woff");
@@ -30,6 +37,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'BrailleFont';
   src: url("/fonts/braille.ttf") format('truetype');
@@ -49,6 +57,7 @@
   font-family: 'SemaphoreFlagsFont';
   src: url("/fonts/semaphoreflags.ttf") format('truetype');
 }
+
 @font-face {
   font-family: 'HieroglyphsFont';
   src: url("/fonts/hieroglyphs.ttf") format('truetype');
@@ -59,7 +68,11 @@
   src: url("/fonts/dancingmen.ttf") format('truetype');
 }
 
-body {
+/* ==============================================
+   BLOG LAYOUT STYLES - SCOPED TO .blog-layout
+   ============================================== */
+
+.blog-layout {
   font-family: "Atkinson", sans-serif;
   margin: 0;
   padding: 0;
@@ -72,98 +85,180 @@ body {
   font-size: 20px;
   line-height: 1.7;
 }
-main {
+
+.blog-layout main {
   width: 720px;
   max-width: calc(100% - 2em);
   margin: auto;
   padding: 3em 1em;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+
+.blog-layout h1,
+.blog-layout h2,
+.blog-layout h3,
+.blog-layout h4,
+.blog-layout h5,
+.blog-layout h6 {
   margin: 0 0 0.5rem 0;
   color: rgb(var(--black));
   line-height: 1.2;
 }
-h1 {
+
+.blog-layout h1 {
   font-size: 3.052em;
 }
-h2 {
+
+.blog-layout h2 {
   font-size: 2.441em;
 }
-h3 {
+
+.blog-layout h3 {
   font-size: 1.953em;
 }
-h4 {
+
+.blog-layout h4 {
   font-size: 1.563em;
 }
-h5 {
+
+.blog-layout h5 {
   font-size: 1.25em;
 }
-strong,
-b {
+
+.blog-layout strong,
+.blog-layout b {
   font-weight: 700;
 }
-a {
+
+.blog-layout a {
   color: var(--accent);
 }
-a:hover {
+
+.blog-layout a:hover {
   color: var(--accent);
 }
-p {
+
+.blog-layout p {
   margin-bottom: 1em;
 }
-.prose p {
+
+.blog-layout .prose p {
   margin-bottom: 2em;
 }
-textarea {
+
+.blog-layout textarea {
   width: 100%;
   font-size: 16px;
 }
-input {
+
+.blog-layout input {
   font-size: 16px;
 }
-table {
+
+.blog-layout table {
   width: 100%;
 }
-img {
+
+.blog-layout img {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
 }
-code {
+
+.blog-layout code {
   padding: 2px 5px;
   background-color: rgb(var(--gray-light));
   border-radius: 2px;
 }
-pre {
+
+.blog-layout pre {
   padding: 1.5em;
   border-radius: 8px;
 }
-pre > code {
+
+.blog-layout pre>code {
   all: unset;
 }
-blockquote {
+
+.blog-layout blockquote {
   border-left: 4px solid var(--accent);
   padding: 0 0 0 20px;
   margin: 0px;
   font-size: 1.333em;
 }
-hr {
+
+.blog-layout hr {
   border: none;
   border-top: 1px solid rgb(var(--gray-light));
 }
+
 @media (max-width: 720px) {
-  body {
+  .blog-layout {
     font-size: 18px;
   }
-  main {
+
+  .blog-layout main {
     padding: 1em;
   }
 }
+
+/* ==============================================
+   CIPHER APP STYLES - SCOPED TO .cipher-app
+   ============================================== */
+
+.cipher-app {
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  background: #f9fafb !important;
+  min-height: 100vh;
+}
+
+.cipher-app * {
+  box-sizing: border-box !important;
+}
+
+.cipher-app main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+}
+
+.cipher-app h1,
+.cipher-app h2,
+.cipher-app h3,
+.cipher-app h4,
+.cipher-app h5,
+.cipher-app h6 {
+  font-size: inherit !important;
+  margin: 0 !important;
+  line-height: inherit !important;
+  color: inherit !important;
+  font-family: inherit !important;
+}
+
+.cipher-app p {
+  margin-bottom: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+/* FIXED: Allow custom fonts on textareas and inputs */
+.cipher-app textarea,
+.cipher-app input {
+  font-size: 14px !important;
+  /* REMOVED: font-family: inherit !important; */
+}
+
+.cipher-app a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* ==============================================
+   UTILITY CLASSES - GLOBAL
+   ============================================== */
 
 .sr-only {
   border: 0;
@@ -173,12 +268,8 @@ hr {
   height: 1px;
   width: 1px;
   overflow: hidden;
-  /* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
   clip: rect(1px 1px 1px 1px);
-  /* maybe deprecated but we need to support legacy browsers */
   clip: rect(1px, 1px, 1px, 1px);
-  /* modern browsers, clip-path works inwards from each corner */
   clip-path: inset(50%);
-  /* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
   white-space: nowrap;
 }

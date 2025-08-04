@@ -2,7 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import CipherTools from '../components/Cipher_Tools.jsx';
+import CipherTools from '../components/cipher_tools.jsx';
 ---
 
 <!doctype html>
@@ -14,22 +14,11 @@ import CipherTools from '../components/Cipher_Tools.jsx';
     />
   </head>
 
-  <body class="bg-gray-50 text-gray-900">
-    <Header />
-
-    <main class="max-w-5xl mx-auto px-6 py-10">
-      <section class="mb-8">
-        <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-3">🔐 Geheimschrift Generator</h1>
-        <p class="text-lg text-center text-gray-700 max-w-2xl mx-auto">
-          Voer een tekst in, kies een geheimschrift en gebruik het tijdens de tweedaagse <em>codeer-maak-sessie</em> Fujo.
-        </p>
-      </section>
-
-      <section>
-        <CipherTools client:load />
-      </section>
-    </main>
-
-    <Footer />
-  </body>
+  <body class="cipher-app bg-gray-50 text-gray-900">
+  <Header />
+  <main>
+    <CipherTools client:load />
+  </main>
+  <Footer />
+</body>
 </html>
