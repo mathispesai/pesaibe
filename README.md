@@ -3,7 +3,7 @@
 
 <!-- dash-content-start -->
 ## Website
-https://www.pesai.be/
+https://www.pesai.be/cipher
 
 ## 🧞 Commands
 
