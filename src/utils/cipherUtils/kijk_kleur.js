@@ -26,7 +26,7 @@ export const kijkKleurEncode = (text, kijk = "KIJK-", kleur = "KLEUR") => {
     for (let r = 0; r < 5; r++) {
       for (let c = 0; c < 5; c++) {
         if (matrix[r][c] === char) {
-          // ✅ juiste volgorde: kolomletter eerst, dan rijletter (zoals decode)
+          // juiste volgorde: kolomletter eerst, dan rijletter (zoals decode)
           result.push(`${kijkLabels[c]}${kleurLabels[r]}`);
           found = true;
           break;

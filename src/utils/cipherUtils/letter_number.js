@@ -1,5 +1,8 @@
 // utils/cipherUtils/letter_number.js
 
+
+// Basic ascii-code number translation
+
 export const letterToNumber = (text) => {
   return text
     .toUpperCase()

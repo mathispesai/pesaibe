@@ -1,15 +1,15 @@
 // components/explanations/CodewordExplanation.jsx
 import React from "react";
 import { BaseExplanation } from "./BaseExplanation.jsx";
-import {buildCodewordMatrix } from "../../utils/cipherUtils/substitution.js";
+import { buildCodewordMatrix } from "../../utils/cipherUtils/substitution.js";
 
-export function CodewordExplanation({ input, imageSrc, imageAlt }) {
-    const { topRow, bottomRow } = buildCodewordMatrix(input || "CODEWOORD");
+export function CodewordExplanation({ keyword, imageSrc, imageAlt }) {
+    const { topRow, bottomRow } = buildCodewordMatrix(keyword || "PARKBOCHT");
 
     return (
         <BaseExplanation title="🧠 Uitleg: Codewoordsubstitutie" imageSrc={imageSrc} imageAlt={imageAlt}>
             <p className="mb-2">
-                Met een codewoord zoals <strong>{input || "CODEWOORD"}</strong> herschikken we het alfabet in twee helften. Letters worden dan onderling uitgewisseld.
+                Met een codewoord zoals <strong>{keyword || "PARKBOCHT"}</strong> herschikken we het alfabet in twee helften. Letters worden dan onderling uitgewisseld.
             </p>
 
             <div className="overflow-auto">
