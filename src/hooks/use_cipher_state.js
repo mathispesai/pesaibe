@@ -56,7 +56,7 @@ export const useCipherState = () => {
                 }
 
                 // Fix for codewordEncodeDecode - provide default if empty
-                if (selectedMethod === 'codewordEncodeDecode' && !safeParameters.codeword) {
+                if (selectedMethod === 'codewordEncodeDecode' && safeParameters.codeword == null) {
                     safeParameters.codeword = 'PARKBOCHT';
                 }
 

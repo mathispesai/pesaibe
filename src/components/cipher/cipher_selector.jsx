@@ -76,9 +76,9 @@ export default function CipherSelector({
         <input
           type="text"
           className="border p-2"
-          placeholder="Codewoord (bv. PARKBOCHT)"
           value={codeword}
           onChange={(e) => setCodeword(e.target.value)}
+          placeholder="Codewoord (bv. PARKBOCHT)"
         />
       )}
 

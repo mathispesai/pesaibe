@@ -26,7 +26,8 @@ export default function CipherExplanation({
     shift = skip,
     wordList = [],
     kijkwoord = "KIJK-",
-    kleurwoord = "KLEUR"
+    kleurwoord = "KLEUR",
+    codeword = "PARKBOCHT",
 }) {
     if (!input || !method) return null;
 
@@ -102,7 +103,7 @@ export default function CipherExplanation({
             return <KijkKleurExplanation kijkwoord={kijkwoord} kleurwoord={kleurwoord} imageSrc={imageSrc} imageAlt={imageAlt} />;
 
         case "codewordEncodeDecode":
-            return <CodewordExplanation input={input} imageSrc={imageSrc} imageAlt={imageAlt} />;
+            return <CodewordExplanation codeword={codeword} imageSrc={imageSrc} imageAlt={imageAlt} />;
 
         case "letterskip":
         case "letterskipDecode":

@@ -16,7 +16,7 @@ export const cipherOptions = [
   // Substitutietechnieken
   { label: "Caesarverschuiving", value: "caesarCipher" },
   { label: "Vervangingscode (A↔Z)", value: "atbashCipher" },
-  { label: "Codewoordsubstitutie", value: "codewordEncodeDecode" },
+  { label: "Codewoordsubstitutie", value: "codewordEncodeDecode"},
   { label: "Lettersleutel (elke nth letter)", value: "letterskip" },
   { label: "Lettersleutel (ontsleutelen)", value: "letterskipDecode" },
   { label: "Windroosmethode", value: "windrose" },

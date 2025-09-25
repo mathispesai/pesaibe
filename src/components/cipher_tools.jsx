@@ -93,6 +93,7 @@ export default function CipherTools() {
                 skip={cipherState.parameters.skip}
                 shift={cipherState.parameters.shift}
                 wordList={cipherState.wordList}
+                codeword={cipherState.parameters.codeword}
                 kijkwoord={cipherState.parameters.kijkwoord}
                 kleurwoord={cipherState.parameters.kleurwoord}
               />
