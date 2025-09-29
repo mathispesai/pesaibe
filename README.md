@@ -1,6 +1,6 @@
 # 🔐 Pesai - Geheimschrift Generator
 
-Een interactieve webapplicatie voor het versleutelen en ontsleutelen van teksten met verschillende geheimschriftmethodes. Ideaal voor educatieve doeleinden, puzzels, en Fujo-activiteiten.
+Een interactieve webapplicatie voor het versleutelen en ontsleutelen van teksten met verschillende geheimschriftmethodes.
 
 ## ✨ Features
 
